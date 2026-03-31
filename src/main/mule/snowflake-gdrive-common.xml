@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:google-drive="http://www.mulesoft.org/schema/mule/google-drive"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd
+        http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+        http://www.mulesoft.org/schema/mule/google-drive http://www.mulesoft.org/schema/mule/google-drive/current/mule-google-drive.xsd">
+
+    <flow name="snowflake-gdrive-uploadFlow" maxConcurrency="1">
+
+        <!-- FIX A: watermarkColumn must be a TIMESTAMP column, not VARCHAR.
+             Row-listener uses it to compare "last seen" vs "new" rows.
+             FILE_NAME as watermark does alphabetical comparison = meaningless. -->
+
+        <!-- Extract filename and decode binary content from Snowflake row.
+             FILE_CONTENT stored in Snowflake as BINARY — it comes back as
+             a byte array. We convert it to Base64 string for transport,
+             then decode back to bytes for Google Drive. -->
+        <snowflake:row-listener config-ref="Snowflake_Config" doc:name="On Table Row" table="MULE_STORAGE" watermarkColumn="UPLOAD_TIMESTAMP" idColumn="FILE_ID">
+            <scheduling-strategy>
+                <fixed-frequency frequency="60" timeUnit="SECONDS"/>
+            </scheduling-strategy>
+        </snowflake:row-listener>
+		<logger level="INFO" doc:name="Logger" doc:id="f5ed82ca-760f-4b30-babf-af75de1a3d98" message="#['Payload from Snowflake: ' ++ write(payload, 'application/json')]"/>
+		<ee:transform doc:name="Extract row data">
+            <ee:variables>
+                <ee:set-variable variableName="fileName"><![CDATA[
+                    %dw 2.0
+                    output application/java
+                    ---
+                    payload.FILE_NAME
+                ]]></ee:set-variable>
+
+                <!-- FILE_CONTENT arrives as byte array from JDBC.
+                     Encode to Base64 string for safe handling. -->
+                <ee:set-variable variableName="fileBase64"><![CDATA[%dw 2.0
+import toBase64 from dw::core::Binaries
+output application/java
+var content = payload.FILE_CONTENT default payload.file_content default null
+---
+if (content is Binary)
+    toBase64(content)
+else if (content is String)
+    toBase64(content as Binary)
+else
+    null]]></ee:set-variable>
+
+                <!-- Detect MIME type from file extension -->
+                <ee:set-variable variableName="mimeType"><![CDATA[
+                    %dw 2.0
+                    output application/java
+                    ---
+                    (payload.FILE_NAME splitBy ".")[-1] match {
+                        case "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        case "pptx" -> "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                        case "xlsx" -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        case "pdf"  -> "application/pdf"
+                        case "png"  -> "image/png"
+                        case "jpg"  -> "image/jpeg"
+                        case "jpeg" -> "image/jpeg"
+                        case "txt"  -> "text/plain"
+                        else        -> "application/octet-stream"
+                    }
+                ]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+
+        <logger level="INFO" doc:name="Logger" doc:id="c0380f52-93e8-4eb0-a98b-51aec77eb3b7" message="#['fileBase64 is null? ' ++ ((vars.fileBase64 == null) as String)]"/>
+		<logger level="INFO" doc:name="Row detected"
+                message="#['Row from Snowflake: ' ++ vars.fileName ++ ' | type: ' ++ vars.mimeType]"/>
+
+        <!-- Decode Base64 back to binary bytes for Google Drive upload -->
+        <ee:transform doc:name="Decode bytes for upload">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+import fromBase64 from dw::core::Binaries
+output application/octet-stream
+---
+if (vars.fileBase64 != null)
+    fromBase64(vars.fileBase64)
+else
+    null]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <!-- FIX B: fields-content must use output application/java.
+             Connector needs a Java Map — not a JSON string.
+             FIX C: content uses decoded binary bytes from payload. -->
+        <logger level="INFO" doc:name="Logger" doc:id="eb31b1c8-5faa-4c5e-9008-917231b4366d" message="#['Uploading | fileName=' ++ vars.fileName ++ ' | mimeType=' ++ vars.mimeType ++ ' | folderId=' ++ p('google.folderId')]"/>
+		<google-drive:create-multipart-file
+            config-ref="Google_Drive_Connector_Config"
+            doc:name="Upload to Google Drive">
+            <google-drive:fields-content><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+    "name": vars.fileName default "mule_upload.bin",
+    "mimeType": vars.mimeType default "application/octet-stream",
+                                "parents": [p("google.folderId")]
+}]]]></google-drive:fields-content>
+            <google-drive:content-content><![CDATA[#[output application/octet-stream --- payload]]]>
+            </google-drive:content-content>
+        </google-drive:create-multipart-file>
+		<logger level="INFO" doc:name="Upload done"
+                message="#['Uploaded to Google Drive from Snowflake: ' ++ vars.fileName]"/>
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c317db8b-5075-4f0f-b4aa-4beb9fce2970" >
+				<ee:transform doc:name="Transform Message" doc:id="7f9053fa-8c64-479d-8a2a-291aa28a7218" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    errorType: 
+        (error.errorType.namespace as String) 
+        ++ ":" 
+        ++ (error.errorType.identifier as String),
+
+    detailedDescription: 
+        write(error.detailedDescription, "application/json"),
+
+    failingComponent: error.failingComponent,
+
+    timestamp: now()
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<ee:transform doc:name="Transform Message" doc:id="4519a8f1-faab-4cb6-9850-89df5159d4b1" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+
+        </error-handler>
+
+    
+</flow>
+</mule>

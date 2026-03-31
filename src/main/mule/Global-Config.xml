@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:google-drive="http://www.mulesoft.org/schema/mule/google-drive" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/google-drive http://www.mulesoft.org/schema/mule/google-drive/current/mule-google-drive.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="2ffa7b49-5a40-4ea0-9457-6a46d70e6694" file="properties\cred.yaml" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="1c77ec3e-51f6-413e-bd50-08e6c44da5c8" >
+		<http:listener-connection host="0.0.0.0" port="8081" readTimeout="1000000" />
+	</http:listener-config>
+	<snowflake:snowflake-config name="Snowflake_Config" doc:name="Snowflake Config" doc:id="16242ac8-7ba8-4e5b-82ea-d955ee328623" >
+		<snowflake:keypair-connection accountName="${snowflake.accountName}" warehouse="${snowflake.warehouse}" database="${snowflake.database}" schema="${snowflake.schema}" user="${snowflake.user}" role="${snowflake.role}" privateKeyFile="${app.home}/keys/rsa_key.p8" />
+	</snowflake:snowflake-config>
+	<google-drive:config name="Google_Drive_Connector_Config" doc:name="Google Drive Connector Config" doc:id="2c146a2d-65ca-43e2-8f8c-ce0041f936f7" >
+		<google-drive:oauth2-connection >
+			<google-drive:oauth-authorization-code consumerKey="${google.clientId}" consumerSecret="${google.clientSecret}" scopes="https://www.googleapis.com/auth/drive" resourceOwnerId="myuser" />
+			<google-drive:oauth-callback-config listenerConfig="HTTP_Listener_config" callbackPath="/callback" authorizePath="/authorize" externalCallbackUrl="http://localhost:8081/callback" />
+		</google-drive:oauth2-connection>
+	</google-drive:config>
+</mule>

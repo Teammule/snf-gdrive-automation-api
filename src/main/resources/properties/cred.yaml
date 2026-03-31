@@ -1,0 +1,15 @@
+google:
+  clientId: "641383116305-6s645c0hsknp03814fuvfctd930ir0p3.apps.googleusercontent.com"
+  clientSecret: "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"
+  folderId: "1VZlN1CJOfPHIr2Ytmgw-QIHFulZc3SJB"
+#  clientId: "809779082839-tigb40ii0blu9r52oero9v1dh9dfl608.apps.googleusercontent.com"
+#  clientSecret: "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"
+#  folderId: "1vFH_WU5TpHTo0z05imBXu37lVl"
+ 
+snowflake:
+  accountName: "DRIOPSI-JB99016"
+  warehouse: "COMPUTE_WH"
+  database: "demo_db"
+  schema: "Public"
+  user: "TEAMMULESOFT1234"
+  role: "ACCOUNTADMIN"
