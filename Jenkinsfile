@@ -57,11 +57,8 @@ pipeline {
         stage('Build') {
             steps {
                 echo '========== STAGE 2: Maven Build =========='
-                sh '''
-                    mvn clean package \
-                        -DskipTests \
-                        -Dapp.runtime=${MULE_VERSION}
-                '''
+                // Using "bat" instead of "sh" for Windows
+                bat "mvn clean package -DskipTests -Dapp.runtime=%MULE_VERSION%"
                 echo 'Build Successful!'
             }
         }
@@ -70,10 +67,8 @@ pipeline {
         stage('MUnit Tests') {
             steps {
                 echo '========== STAGE 3: Running MUnit Tests =========='
-                sh '''
-                    mvn test \
-                        -Dapp.runtime=${MULE_VERSION}
-                '''
+                // Using "bat" instead of "sh" for Windows
+                bat "mvn test -Dapp.runtime=%MULE_VERSION%"
             }
             post {
                 always {
@@ -93,17 +88,19 @@ pipeline {
             steps {
                 echo '========== STAGE 4: Deploy to CloudHub 2.0 =========='
                 echo "Deploying ${CLOUDHUB_APP_NAME} to ${CLOUDHUB_ENVIRONMENT} environment..."
-                sh '''
-                    mvn deploy -DmuleDeploy \
-                        -Danypoint.client.id=${ANYPOINT_CLIENT_ID} \
-                        -Danypoint.client.secret=${ANYPOINT_CLIENT_SECRET} \
-                        -Dcloudhub.application.name=${CLOUDHUB_APP_NAME} \
-                        -Dcloudhub.environment=${CLOUDHUB_ENVIRONMENT} \
-                        -Dcloudhub.businessGroupId=${CLOUDHUB_BG_ID} \
-                        -Dcloudhub.target=${CLOUDHUB_TARGET} \
-                        -Dcloudhub.muleVersion=${MULE_VERSION} \
-                        -DskipTests
-                '''
+                // Using "bat" instead of "sh" for Windows
+                // Using "^" instead of "\" for Windows line continuation
+                bat """
+                    mvn deploy -DmuleDeploy ^
+                    -Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
+                    -Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
+                    -Dcloudhub.application.name=%CLOUDHUB_APP_NAME% ^
+                    -Dcloudhub.environment=%CLOUDHUB_ENVIRONMENT% ^
+                    -Dcloudhub.businessGroupId=%CLOUDHUB_BG_ID% ^
+                    -Dcloudhub.target=%CLOUDHUB_TARGET% ^
+                    -Dcloudhub.muleVersion=%MULE_VERSION% ^
+                    -DskipTests
+                """
                 echo 'Deployment to CloudHub 2.0 Successful!'
             }
         }
