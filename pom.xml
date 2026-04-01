@@ -1,158 +1,136 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+ https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<!-- ✅ CHANGED: groupId must be Org ID for CloudHub 2.0 Exchange publishing -->
-	<groupId>7603b4c1-08c5-4c45-b0a0-1c3c06cad292</groupId>
-	<artifactId>snowflake-gdrive-common</artifactId>
-	<version>1.0.0</version>
-	<packaging>mule-application</packaging>
+ <modelVersion>4.0.0</modelVersion>
 
-	<name>snowflake-gdrive-common</name>
+ <!-- Org ID required for Exchange v3 -->
+ <groupId>7603b4c1-08c5-4c45-b0a0-1c3c06cad292</groupId>
+ <artifactId>snowflake-gdrive-common</artifactId>
+ <version>1.0.1</version>
+ <packaging>mule-application</packaging>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+ <name>snowflake-gdrive-common</name>
 
-		<app.runtime>4.11.0</app.runtime>
-		<mule.maven.plugin.version>4.7.0</mule.maven.plugin.version>
+ <properties>
+  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  <app.runtime>4.11.0</app.runtime>
+  <mule.maven.plugin.version>4.7.0</mule.maven.plugin.version>
+ </properties>
 
-		<!-- ===== CloudHub 2.0 Deployment Properties ===== -->
-		<cloudhub.application.name>snowflake-gdrive-dev</cloudhub.application.name>
-		<cloudhub.environment>DEV</cloudhub.environment>
-		<cloudhub.businessGroupId>7603b4c1-08c5-4c45-b0a0-1c3c06cad292</cloudhub.businessGroupId>
-		<cloudhub.target>Cloudhub-US-East-2</cloudhub.target>
-		<cloudhub.muleVersion>4.11.0</cloudhub.muleVersion>
-		<cloudhub.replicas>1</cloudhub.replicas>
-		<cloudhub.vCores>0.1</cloudhub.vCores>
-	</properties>
+ <!-- Exchange v3 publication endpoint -->
+ <distributionManagement>
+  <repository>
+   <id>anypoint-exchange-v3</id>
+   <name>Anypoint Exchange</name>
+   <url>
+   https://maven.anypoint.mulesoft.com/api/v3/organizations/7603b4c1-08c5-4c45-b0a0-1c3c06cad292/maven
+   </url>
+  </repository>
+ </distributionManagement>
 
-	<!-- ✅ ADDED: Required for CloudHub 2.0 - Publishes artifact to Exchange before deploy -->
-	<distributionManagement>
-		<repository>
-			<id>anypoint-exchange-v3</id>
-			<name>Anypoint Exchange</name>
-			<url>https://maven.anypoint.mulesoft.com/api/v3/organizations/7603b4c1-08c5-4c45-b0a0-1c3c06cad292/maven</url>
-			<layout>default</layout>
-		</repository>
-	</distributionManagement>
+ <build>
+  <plugins>
 
-	<build>
-		<plugins>
+   <!-- Mule Maven Plugin -->
+   <plugin>
+    <groupId>org.mule.tools.maven</groupId>
+    <artifactId>mule-maven-plugin</artifactId>
+    <version>${mule.maven.plugin.version}</version>
+    <extensions>true</extensions>
 
-			<!-- Maven Clean Plugin -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-clean-plugin</artifactId>
-				<version>3.2.0</version>
-			</plugin>
+    <configuration>
 
-			<!-- ===== Mule Maven Plugin with CloudHub 2.0 Deployment ===== -->
-			<plugin>
-				<groupId>org.mule.tools.maven</groupId>
-				<artifactId>mule-maven-plugin</artifactId>
-				<version>${mule.maven.plugin.version}</version>
-				<extensions>true</extensions>
-				<configuration>
+     <cloudhub2Deployment>
 
-					<!-- Shared Libraries (Snowflake JDBC) -->
-					<sharedLibraries>
-						<sharedLibrary>
-							<groupId>net.snowflake</groupId>
-							<artifactId>snowflake-jdbc</artifactId>
-						</sharedLibrary>
-					</sharedLibraries>
+      <uri>https://anypoint.mulesoft.com</uri>
+      <provider>MC</provider>
 
-					<!-- ===== CloudHub 2.0 Deployment Configuration ===== -->
-					<cloudhub2Deployment>
+      <environment>${cloudhub.environment}</environment>
+      <businessGroupId>${cloudhub.businessGroupId}</businessGroupId>
 
-						<!-- Anypoint Platform Connection -->
-						<uri>https://anypoint.mulesoft.com</uri>
-						<provider>MC</provider>
-						<environment>${cloudhub.environment}</environment>
-						<businessGroupId>${cloudhub.businessGroupId}</businessGroupId>
+      <connectedAppClientId>${anypoint.client.id}</connectedAppClientId>
+      <connectedAppClientSecret>${anypoint.client.secret}</connectedAppClientSecret>
+      <connectedAppGrantType>client_credentials</connectedAppGrantType>
 
-						<!-- Connected App Authentication (Secure - No Username/Password) -->
-						<connectedAppClientId>${anypoint.client.id}</connectedAppClientId>
-						<connectedAppClientSecret>${anypoint.client.secret}</connectedAppClientSecret>
-						<connectedAppGrantType>client_credentials</connectedAppGrantType>
+      <applicationName>${cloudhub.application.name}</applicationName>
+      <muleVersion>${cloudhub.muleVersion}</muleVersion>
+      <target>${cloudhub.target}</target>
 
-						<!-- Application Configuration -->
-						<applicationName>${cloudhub.application.name}</applicationName>
-						<muleVersion>${cloudhub.muleVersion}</muleVersion>
+      <replicas>${cloudhub.replicas}</replicas>
+      <vCores>${cloudhub.vCores}</vCores>
 
-						<!-- CloudHub 2.0 Target - US East Ohio -->
-						<target>${cloudhub.target}</target>
+     </cloudhub2Deployment>
 
-						<!-- Resource Allocation (Free Plan) -->
-						<replicas>${cloudhub.replicas}</replicas>
-						<vCores>${cloudhub.vCores}</vCores>
+    </configuration>
+   </plugin>
 
-					</cloudhub2Deployment>
+   <!-- REQUIRED: Exchange Publication Plugin -->
+   <plugin>
+    <groupId>org.mule.tools.maven</groupId>
+    <artifactId>exchange-mule-maven-plugin</artifactId>
+    <version>0.1.10</version>
+    <extensions>true</extensions>
+   </plugin>
 
-				</configuration>
-			</plugin>
+  </plugins>
+ </build>
 
-		</plugins>
-	</build>
+ <repositories>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.mule.connectors</groupId>
-			<artifactId>mule-http-connector</artifactId>
-			<version>1.11.1</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.connectors</groupId>
-			<artifactId>mule-sockets-connector</artifactId>
-			<version>1.2.7</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>com.mulesoft.connectors</groupId>
-			<artifactId>mule4-snowflake-connector</artifactId>
-			<version>1.4.0</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>com.mulesoft.connectors</groupId>
-			<artifactId>mule4-google-drive-connector</artifactId>
-			<version>1.1.4</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
-			<groupId>net.snowflake</groupId>
-			<artifactId>snowflake-jdbc</artifactId>
-			<version>3.19.0</version>
-		</dependency>
-	</dependencies>
+  <repository>
+   <id>anypoint-exchange-v3</id>
+   <name>Anypoint Exchange</name>
+   <url>https://maven.anypoint.mulesoft.com/api/v3/maven</url>
+  </repository>
 
-	<repositories>
-		<repository>
-			<id>anypoint-exchange-v3</id>
-			<name>Anypoint Exchange</name>
-			<url>https://maven.anypoint.mulesoft.com/api/v3/maven</url>
-			<layout>default</layout>
-		</repository>
-		<repository>
-			<id>mulesoft-releases</id>
-			<name>MuleSoft Releases Repository</name>
-			<url>https://repository.mulesoft.org/nexus/repository/releases/</url>
-			<layout>default</layout>
-		</repository>
-	</repositories>
+  <repository>
+   <id>mulesoft-releases</id>
+   <url>https://repository.mulesoft.org/nexus/repository/releases/</url>
+  </repository>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>mulesoft-releases</id>
-			<name>MuleSoft Releases Repository</name>
-			<layout>default</layout>
-			<url>https://repository.mulesoft.org/nexus/repository/releases/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
+ </repositories>
+
+ <dependencies>
+
+  <dependency>
+   <groupId>org.mule.connectors</groupId>
+   <artifactId>mule-http-connector</artifactId>
+   <version>1.11.1</version>
+   <classifier>mule-plugin</classifier>
+  </dependency>
+
+  <dependency>
+   <groupId>org.mule.connectors</groupId>
+   <artifactId>mule-sockets-connector</artifactId>
+   <version>1.2.7</version>
+   <classifier>mule-plugin</classifier>
+  </dependency>
+
+  <dependency>
+   <groupId>com.mulesoft.connectors</groupId>
+   <artifactId>mule4-snowflake-connector</artifactId>
+   <version>1.4.0</version>
+   <classifier>mule-plugin</classifier>
+  </dependency>
+
+  <dependency>
+   <groupId>com.mulesoft.connectors</groupId>
+   <artifactId>mule4-google-drive-connector</artifactId>
+   <version>1.1.4</version>
+   <classifier>mule-plugin</classifier>
+  </dependency>
+
+  <dependency>
+   <groupId>net.snowflake</groupId>
+   <artifactId>snowflake-jdbc</artifactId>
+   <version>3.19.0</version>
+  </dependency>
+
+ </dependencies>
 
 </project>
+
+
