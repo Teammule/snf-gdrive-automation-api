@@ -9,7 +9,6 @@
  <groupId>7603b4c1-08c5-4c45-b0a0-1c3c06cad292</groupId>
  <artifactId>snowflake-gdrive-common</artifactId>
 
- <!-- Version bumped to avoid Exchange metadata collision -->
  <version>1.0.3</version>
 
  <packaging>mule-application</packaging>
@@ -23,7 +22,6 @@
   <app.runtime>4.11.0</app.runtime>
   <mule.maven.plugin.version>4.7.0</mule.maven.plugin.version>
 
-  <!-- CloudHub 2.0 Deployment Parameters -->
   <cloudhub.application.name>snowflake-gdrive-dev</cloudhub.application.name>
   <cloudhub.environment>DEV</cloudhub.environment>
   <cloudhub.businessGroupId>7603b4c1-08c5-4c45-b0a0-1c3c06cad292</cloudhub.businessGroupId>
@@ -35,7 +33,6 @@
  </properties>
 
 
- <!-- Exchange v3 Publication Endpoint -->
  <distributionManagement>
   <repository>
    <id>anypoint-exchange-v3</id>
@@ -50,16 +47,6 @@
  <build>
   <plugins>
 
-   <!-- Exchange Publication Plugin -->
-   <plugin>
-    <groupId>org.mule.tools.maven</groupId>
-    <artifactId>exchange-mule-maven-plugin</artifactId>
-    <version>0.1.7</version>
-    <extensions>true</extensions>
-   </plugin>
-
-
-   <!-- Mule Deployment Plugin -->
    <plugin>
     <groupId>org.mule.tools.maven</groupId>
     <artifactId>mule-maven-plugin</artifactId>
@@ -67,6 +54,8 @@
     <extensions>true</extensions>
 
     <configuration>
+     
+     <classifier>mule-application</classifier>
 
      <sharedLibraries>
       <sharedLibrary>
@@ -104,7 +93,6 @@
  </build>
 
 
- <!-- MuleSoft Public Dependency Repository -->
  <repositories>
   <repository>
    <id>mulesoft-releases</id>
