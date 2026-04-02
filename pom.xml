@@ -9,7 +9,7 @@
  <groupId>7603b4c1-08c5-4c45-b0a0-1c3c06cad292</groupId>
  <artifactId>snowflake-gdrive-common</artifactId>
 
- <version>1.0.5</version>
+ <version>1.0.6</version>
 
  <packaging>mule-application</packaging>
 
