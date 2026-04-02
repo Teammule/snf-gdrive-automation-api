@@ -41,6 +41,12 @@
 
 	<build>
 		<plugins>
+			<plugin>
+			    <groupId>org.mule.tools.maven</groupId>
+			    <artifactId>exchange-mule-maven-plugin</artifactId>
+			    <version>0.1.7</version>
+			    <extensions>true</extensions>
+			</plugin>
 
 			<!-- Maven Clean Plugin -->
 			<plugin>
@@ -134,7 +140,7 @@
 		<repository>
 			<id>anypoint-exchange-v3</id>
 			<name>Anypoint Exchange</name>
-			<url>https://maven.anypoint.mulesoft.com/api/v3/maven</url>
+			<url>https://maven.anypoint.mulesoft.com/api/v3/organizations/7603b4c1-08c5-4c45-b0a0-1c3c06cad292/maven</url>
 			<layout>default</layout>
 		</repository>
 		<repository>
