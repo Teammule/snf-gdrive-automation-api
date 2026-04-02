@@ -11,7 +11,7 @@ http://www.mulesoft.org/schema/mule/google-drive http://www.mulesoft.org/schema/
 		<http:listener-connection host="0.0.0.0" port="8081" readTimeout="1000000" />
 	</http:listener-config>
 	<snowflake:snowflake-config name="Snowflake_Config" doc:name="Snowflake Config" doc:id="16242ac8-7ba8-4e5b-82ea-d955ee328623" >
-		<snowflake:keypair-connection accountName="${snowflake.accountName}" warehouse="${snowflake.warehouse}" database="${snowflake.database}" schema="${snowflake.schema}" user="${snowflake.user}" role="${snowflake.role}" privateKeyFile="${app.home}/keys/rsa_key.p8" />
+		<snowflake:keypair-connection accountName="${snowflake.accountName}" warehouse="${snowflake.warehouse}" database="${snowflake.database}" schema="${snowflake.schema}" user="${snowflake.user}" role="${snowflake.role}" privateKeyFile="${app.home}/rsa_key.p8" />
 	</snowflake:snowflake-config>
 	<google-drive:config name="Google_Drive_Connector_Config" doc:name="Google Drive Connector Config" doc:id="2c146a2d-65ca-43e2-8f8c-ce0041f936f7" >
 		<google-drive:oauth2-connection >
