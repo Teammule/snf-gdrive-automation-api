@@ -1,36 +1,35 @@
 pipeline {
- 
+
     agent any
- 
+
     // ============================================================
     // TOOLS — Force Jenkins to use Java 21 for Mule 4.11.0
     // ============================================================
     tools {
         jdk 'Java21'
     }
- 
+
     // ============================================================
     // ENVIRONMENT VARIABLES
     // ============================================================
     environment {
- 
+
         // ── Anypoint Connected App Credentials (from Jenkins) ──
         ANYPOINT_CLIENT_ID     = credentials('anypoint-client-id')
         ANYPOINT_CLIENT_SECRET = credentials('anypoint-client-secret')
- 
+
         // ── CloudHub 2.0 Deployment Config ──
         CLOUDHUB_APP_NAME      = 'snowflake-gdrive-dev'
         CLOUDHUB_ENVIRONMENT   = 'DEV'
         CLOUDHUB_BG_ID         = '7603b4c1-08c5-4c45-b0a0-1c3c06cad292'
         CLOUDHUB_TARGET        = 'Cloudhub-US-East-2'
         MULE_VERSION           = '4.11.0'
- 
+
         // ── Maven Settings ──
         MAVEN_OPTS             = '-Xmx1024m'
-        // Points to Jenkins LocalSystem .m2 settings.xml
         MAVEN_SETTINGS         = 'C:\\Windows\\system32\\config\\systemprofile\\.m2\\settings.xml'
     }
- 
+
     // ============================================================
     // PIPELINE OPTIONS
     // ============================================================
@@ -40,12 +39,12 @@ pipeline {
         disableConcurrentBuilds()
         timestamps()
     }
- 
+
     // ============================================================
     // STAGES
     // ============================================================
     stages {
- 
+
         // ── STAGE 1: Checkout Code from GitHub ──────────────────
         stage('Checkout') {
             steps {
@@ -54,7 +53,7 @@ pipeline {
                 echo 'Code checked out successfully!'
             }
         }
- 
+
         // ── STAGE 2: Build ───────────────────────────────────────
         stage('Build') {
             steps {
@@ -63,7 +62,7 @@ pipeline {
                 echo 'Build Successful!'
             }
         }
- 
+
         // ── STAGE 3: Run MUnit Tests ─────────────────────────────
         stage('MUnit Tests') {
             steps {
@@ -81,29 +80,16 @@ pipeline {
                 }
             }
         }
- 
-        // ── STAGE 4: Publish to Anypoint Exchange ────────────────
-        stage('Publish to Exchange') {
-            steps {
-                echo '========== STAGE 4: Publish to Anypoint Exchange =========='
-                // Publish artifact to Exchange FIRST before CloudHub deploy
-                bat """
-                    mvn deploy ^
-                    -DskipDeploymentVerification ^
-                    -Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
-                    -Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
-                    -s %MAVEN_SETTINGS% ^
-                    -DskipTests
-                """
-                echo 'Published to Anypoint Exchange!'
-            }
-        }
- 
-        // ── STAGE 5: Deploy to CloudHub 2.0 ─────────────────────
+
+        // ── STAGE 4: Deploy to CloudHub 2.0 ─────────────────────
+        // ✅ This single stage handles BOTH:
+        //    1. Publishing artifact to Anypoint Exchange (auto)
+        //    2. Deploying to CloudHub 2.0
+        // ❌ No separate "Publish to Exchange" stage needed!
         stage('Deploy to CloudHub 2.0') {
             steps {
-                echo '========== STAGE 5: Deploy to CloudHub 2.0 =========='
-                echo "Deploying ${CLOUDHUB_APP_NAME} to ${CLOUDHUB_ENVIRONMENT} environment..."
+                echo '========== STAGE 4: Deploy to CloudHub 2.0 =========='
+                echo "Deploying ${CLOUDHUB_APP_NAME} to ${CLOUDHUB_ENVIRONMENT}..."
                 bat """
                     mvn deploy -DmuleDeploy ^
                     -Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
@@ -119,9 +105,9 @@ pipeline {
                 echo 'Deployment to CloudHub 2.0 Successful!'
             }
         }
- 
+
     }
- 
+
     // ============================================================
     // POST PIPELINE ACTIONS
     // ============================================================
@@ -145,5 +131,5 @@ pipeline {
             cleanWs()
         }
     }
- 
+
 }
