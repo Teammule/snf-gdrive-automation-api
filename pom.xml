@@ -84,6 +84,12 @@
       <replicas>${cloudhub.replicas}</replicas>
       <vCores>${cloudhub.vCores}</vCores>
 
+      <properties>
+       <mule.env>dev</mule.env>
+       <anypoint.platform.client_id>${anypoint.client.id}</anypoint.platform.client_id>
+       <anypoint.platform.client_secret>${anypoint.client.secret}</anypoint.platform.client_secret>
+       </properties>
+
      </cloudhub2Deployment>
 
     </configuration>
