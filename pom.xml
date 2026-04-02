@@ -2,10 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<!-- ✅ CHANGED: groupId must be Org ID for CloudHub 2.0 Exchange publishing -->
 	<groupId>7603b4c1-08c5-4c45-b0a0-1c3c06cad292</groupId>
 	<artifactId>snowflake-gdrive-common</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+
+	<!-- ✅ FIX 1: Changed from 1.0.0-SNAPSHOT to 1.0.0 -->
+	<!-- Exchange does NOT accept SNAPSHOT versions! -->
+	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 
 	<name>snowflake-gdrive-common</name>
@@ -27,7 +29,7 @@
 		<cloudhub.vCores>0.1</cloudhub.vCores>
 	</properties>
 
-	<!-- ✅ ADDED: Required for CloudHub 2.0 - Publishes artifact to Exchange before deploy -->
+	<!-- ✅ Exchange Publishing - Required for CloudHub 2.0 -->
 	<distributionManagement>
 		<repository>
 			<id>anypoint-exchange-v3</id>
@@ -72,7 +74,7 @@
 						<environment>${cloudhub.environment}</environment>
 						<businessGroupId>${cloudhub.businessGroupId}</businessGroupId>
 
-						<!-- Connected App Authentication (Secure - No Username/Password) -->
+						<!-- Connected App Authentication -->
 						<connectedAppClientId>${anypoint.client.id}</connectedAppClientId>
 						<connectedAppClientSecret>${anypoint.client.secret}</connectedAppClientSecret>
 						<connectedAppGrantType>client_credentials</connectedAppGrantType>
