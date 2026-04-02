@@ -14,7 +14,7 @@ pipeline {
 
         // CloudHub 2.0 Deployment Config
         CLOUDHUB_APP_NAME    = 'snowflake-gdrive-dev'
-        CLOUDHUB_ENVIRONMENT = 'DEV'
+        CLOUDHUB_ENVIRONMENT = 'Sandbox'
         CLOUDHUB_BG_ID       = '7603b4c1-08c5-4c45-b0a0-1c3c06cad292'
         CLOUDHUB_TARGET      = 'Cloudhub-US-East-2'
         MULE_VERSION         = '4.11.0'
