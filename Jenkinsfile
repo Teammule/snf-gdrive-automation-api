@@ -54,7 +54,7 @@ pipeline {
             steps {
                 echo '===== PUBLISHING ARTIFACT TO EXCHANGE ====='
                 bat """
-                mvn deploy ^
+                mvn clean deploy ^
                 -DskipTests ^
                 -Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
                 -Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
