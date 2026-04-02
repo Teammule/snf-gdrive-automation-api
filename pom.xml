@@ -7,7 +7,7 @@
 
 	<!-- ✅ FIX 1: Changed from 1.0.0-SNAPSHOT to 1.0.0 -->
 	<!-- Exchange does NOT accept SNAPSHOT versions! -->
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>mule-application</packaging>
 
 	<name>snowflake-gdrive-common</name>
