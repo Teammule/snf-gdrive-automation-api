@@ -83,7 +83,7 @@ output application/octet-stream
 if (vars.fileBase64 != null)
     fromBase64(vars.fileBase64)
 else
-    null]]></ee:set-payload>
+    "" as Binary]]></ee:set-payload>
             </ee:message>
         </ee:transform>
 
