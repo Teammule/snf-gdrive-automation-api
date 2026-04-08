@@ -53,13 +53,14 @@ mvn clean package ^
 stage('Publish to Exchange') {
             // ONLY run this stage if the branch is 'master'
             when {
-                branch 'master'
+                expression { env.GIT_BRANCH == 'origin/master' || env.GIT_BRANCH == 'master' }
             }
             steps {
                 echo '===== PUBLISHING ARTIFACT TO EXCHANGE ====='
                 bat """
                 mvn clean deploy ^
                 -DskipTests ^
+                -Dbuild.number=%BUILD_NUMBER% ^
                 -Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
                 -Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
                 -s %MAVEN_SETTINGS%
@@ -70,12 +71,13 @@ stage('Publish to Exchange') {
         stage('Deploy to CloudHub 2.0') {
             // ONLY run this stage if the branch is 'master'
             when {
-                branch 'master'
+                expression { env.GIT_BRANCH == 'origin/master' || env.GIT_BRANCH == 'master' }
             }
             steps {
                 echo '===== DEPLOYING TO CLOUDHUB 2.0 (US EAST OHIO) ====='
                 bat """
                 mvn mule:deploy ^
+                -Dbuild.number=%BUILD_NUMBER% ^
                 -Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
                 -Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
                 -Dcloudhub.application.name=%CLOUDHUB_APP_NAME% ^
