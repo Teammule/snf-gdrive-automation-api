@@ -3,10 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>7603b4c1-08c5-4c45-b0a0-1c3c06cad292</groupId>
 	<artifactId>snowflake-gdrive-common</artifactId>
-	<version>1.0.12</version>
+	<version>1.0.${build.number}</version>
 	<packaging>mule-application</packaging>
 	<name>snowflake-gdrive-common</name>
 	<properties>
+		<build.number>0-LOCAL</build.number>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<app.runtime>4.11.0</app.runtime>
 		<mule.maven.plugin.version>4.7.0</mule.maven.plugin.version>
