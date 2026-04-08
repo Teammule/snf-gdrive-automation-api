@@ -51,37 +51,43 @@ mvn clean package ^
 }
  
 stage('Publish to Exchange') {
-steps {
-echo '===== PUBLISHING ARTIFACT TO EXCHANGE ====='
-bat """
-mvn clean deploy ^
--DskipTests ^
--Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
--Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
--s %MAVEN_SETTINGS%
-"""
-}
-}
- 
-stage('Deploy to CloudHub 2.0') {
-steps {
-echo '===== DEPLOYING TO CLOUDHUB 2.0 (US EAST OHIO) ====='
-bat """
-mvn mule:deploy ^
--Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
--Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
--Dcloudhub.application.name=%CLOUDHUB_APP_NAME% ^
--Dcloudhub.environment=%CLOUDHUB_ENVIRONMENT% ^
--Dcloudhub.businessGroupId=%CLOUDHUB_BG_ID% ^
--Dcloudhub.target=%CLOUDHUB_TARGET% ^
--Dcloudhub.muleVersion=%MULE_VERSION% ^
--DskipTests ^
--s %MAVEN_SETTINGS%
-"""
-}
-}
- 
-}
+            // ONLY run this stage if the branch is 'master'
+            when {
+                branch 'master'
+            }
+            steps {
+                echo '===== PUBLISHING ARTIFACT TO EXCHANGE ====='
+                bat """
+                mvn clean deploy ^
+                -DskipTests ^
+                -Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
+                -Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
+                -s %MAVEN_SETTINGS%
+                """
+            }
+        }
+
+        stage('Deploy to CloudHub 2.0') {
+            // ONLY run this stage if the branch is 'master'
+            when {
+                branch 'master'
+            }
+            steps {
+                echo '===== DEPLOYING TO CLOUDHUB 2.0 (US EAST OHIO) ====='
+                bat """
+                mvn mule:deploy ^
+                -Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
+                -Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
+                -Dcloudhub.application.name=%CLOUDHUB_APP_NAME% ^
+                -Dcloudhub.environment=%CLOUDHUB_ENVIRONMENT% ^
+                -Dcloudhub.businessGroupId=%CLOUDHUB_BG_ID% ^
+                -Dcloudhub.target=%CLOUDHUB_TARGET% ^
+                -Dcloudhub.muleVersion=%MULE_VERSION% ^
+                -DskipTests ^
+                -s %MAVEN_SETTINGS%
+                """
+            }
+        }
  
 post {
  
