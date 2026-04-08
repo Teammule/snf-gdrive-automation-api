@@ -56,6 +56,7 @@
 						<target>${cloudhub.target}</target>
 						<replicas>${cloudhub.replicas}</replicas>
 						<vCores>${cloudhub.vCores}</vCores>
+						<deploymentTimeout>2400000</deploymentTimeout>
 					</cloudhub2Deployment>
 				</configuration>
 			</plugin>
