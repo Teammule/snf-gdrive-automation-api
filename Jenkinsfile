@@ -88,7 +88,7 @@ stage('Publish to Exchange') {
                 """
             }
         }
- 
+}
 post {
  
 success {
