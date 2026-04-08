@@ -56,11 +56,14 @@ stage('Publish to Exchange') {
                 expression { env.GIT_BRANCH == 'origin/master' || env.GIT_BRANCH == 'master' }
             }
             steps {
+                echo '===== STAMPING NEW VERSION INTO POM.XML ====='
+                // This physically changes <version>1.0.0</version> to <version>1.0.49</version>
+                bat "mvn versions:set -DnewVersion=1.0.%BUILD_NUMBER% -s %MAVEN_SETTINGS%"
+             
                 echo '===== PUBLISHING ARTIFACT TO EXCHANGE ====='
                 bat """
                 mvn clean deploy ^
                 -DskipTests ^
-                -Dbuild.number=%BUILD_NUMBER% ^
                 -Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
                 -Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
                 -s %MAVEN_SETTINGS%
@@ -77,7 +80,6 @@ stage('Publish to Exchange') {
                 echo '===== DEPLOYING TO CLOUDHUB 2.0 (US EAST OHIO) ====='
                 bat """
                 mvn mule:deploy ^
-                -Dbuild.number=%BUILD_NUMBER% ^
                 -Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
                 -Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
                 -Dcloudhub.application.name=%CLOUDHUB_APP_NAME% ^
