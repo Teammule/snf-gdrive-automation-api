@@ -95,7 +95,7 @@ output application/json
 				<logger level="INFO" doc:name="Upload done" message="#['Uploaded to Google Drive from Snowflake: ' ++ vars.fileName]" />
 			</when>
 			<otherwise >
-				<logger level="INFO" doc:name="Logger" doc:id="08cde649-6313-4157-8d46-abf044303667" message='"File already processed, skipping: " ++ vars.fileName'/>
+				<logger level="INFO" doc:name="Skipped File Logger" doc:id="08cde649-6313-4157-8d46-abf044303667" message='"File already processed, skipping: " ++ vars.fileName'/>
 			</otherwise>
 		</choice>
 
