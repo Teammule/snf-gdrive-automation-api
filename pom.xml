@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>7603b4c1-08c5-4c45-b0a0-1c3c06cad292</groupId>
 	<artifactId>snowflake-gdrive-common</artifactId>
-	<version>1.0.${build.number}</version>
+	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 	<name>snowflake-gdrive-common</name>
 	<properties>
