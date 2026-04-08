@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:google-drive="http://www.mulesoft.org/schema/mule/google-drive"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:google-drive="http://www.mulesoft.org/schema/mule/google-drive"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/google-drive http://www.mulesoft.org/schema/mule/google-drive/current/mule-google-drive.xsd
-http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
 	<configuration-properties doc:name="Configuration properties" doc:id="2ffa7b49-5a40-4ea0-9457-6a46d70e6694" file="properties\cred.yaml" />
 	<snowflake:snowflake-config name="Snowflake_Config" doc:name="Snowflake Config" doc:id="16242ac8-7ba8-4e5b-82ea-d955ee328623" >
 		<snowflake:keypair-connection accountName="${snowflake.accountName}" warehouse="${snowflake.warehouse}" database="${snowflake.database}" schema="${snowflake.schema}" user="${snowflake.user}" role="${snowflake.role}" privateKeyFile="${app.home}/rsa_key.p8" />
@@ -20,4 +21,5 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="baa7bab8-05f6-45b7-891f-8dccbc615ce4" >
 		<http:listener-connection host="0.0.0.0" port="8081" readTimeout="1000000" />
 	</http:listener-config>
+	<os:object-store name="File_Tracking_Store" doc:name="Object store" doc:id="ada1c915-afb5-4ca5-b00b-e4fe13064f8f" maxEntries="1000" entryTtl="30" entryTtlUnit="DAYS" expirationIntervalUnit="DAYS" />
 </mule>
