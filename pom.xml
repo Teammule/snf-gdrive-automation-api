@@ -12,7 +12,7 @@
 		<app.runtime>4.11.0</app.runtime>
 		<mule.maven.plugin.version>4.7.0</mule.maven.plugin.version>
 		<cloudhub.application.name>snowflake-gdrive-dev</cloudhub.application.name>
-		<cloudhub.environment>DEV</cloudhub.environment>
+		<cloudhub.environment>Sandbox</cloudhub.environment>
 		<cloudhub.businessGroupId>7603b4c1-08c5-4c45-b0a0-1c3c06cad292</cloudhub.businessGroupId>
 		<cloudhub.target>Cloudhub-US-East-2</cloudhub.target>
 		<cloudhub.muleVersion>4.11.0</cloudhub.muleVersion>
