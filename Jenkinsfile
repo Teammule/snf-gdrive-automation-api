@@ -39,16 +39,20 @@ checkout scm
 }
  
 stage('Build Artifact') {
-steps {
-echo '===== BUILD MULE APPLICATION ====='
-bat """
-mvn clean package ^
--DskipTests ^
--Dapp.runtime=%MULE_VERSION% ^
--s %MAVEN_SETTINGS%
-"""
-}
-}
+            steps {
+                echo '===== COMPILING MULE APPLICATION ====='
+                // Added -U to force Maven to clear its cache and download the new MUnit files
+                bat "mvn clean package -DskipTests -U -s %MAVEN_SETTINGS%"
+            }
+        }
+
+        stage('MUnit Tests') {
+            steps {
+                echo '===== RUNNING MUNIT TESTS & CHECKING COVERAGE ====='
+                // Added -U here as well just to be safe!
+                bat "mvn clean test -U -s %MAVEN_SETTINGS%"
+            }
+        }
  
 stage('Publish to Exchange') {
             // ONLY run this stage if the branch is 'master'
