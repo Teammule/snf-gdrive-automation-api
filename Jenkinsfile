@@ -62,7 +62,7 @@ stage('Publish to Exchange') {
             steps {
                 echo '===== STAMPING NEW VERSION INTO POM.XML ====='
                 // This physically changes <version>1.0.0</version> to <version>1.0.49</version>
-                bat "mvn versions:set -DnewVersion=1.0.%BUILD_NUMBER% -s %MAVEN_SETTINGS%"
+                bat "mvn versions:set -DnewVersion=1.1.%BUILD_NUMBER% -s %MAVEN_SETTINGS%"
              
                 echo '===== PUBLISHING ARTIFACT TO EXCHANGE ====='
                 bat """
