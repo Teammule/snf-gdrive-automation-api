@@ -158,7 +158,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.mulesoft.munit.tools</groupId>
+			<groupId>com.mulesoft.munit</groupId>
 			<artifactId>munit-tools</artifactId>
 			<version>${munit.version}</version>
 			<classifier>mule-plugin</classifier>
