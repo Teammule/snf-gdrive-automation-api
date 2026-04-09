@@ -61,6 +61,28 @@
 					</cloudhub2Deployment>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.mule.tools.maven</groupId>
+				<artifactId>exchange-mule-maven-plugin</artifactId>
+				<version>0.0.23</version>
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<id>validate</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>exchange-pre-deploy</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>deploy</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>exchange-deploy</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			
 			<plugin>
 				<groupId>com.mulesoft.munit.tools</groupId>
