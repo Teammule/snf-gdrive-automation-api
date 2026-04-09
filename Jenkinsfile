@@ -37,6 +37,14 @@ echo '===== CHECKOUT SOURCE ====='
 checkout scm
 }
 }
+
+stage('Clean Corrupted Cache') {
+            steps {
+                echo '===== CLEANING CORRUPTED MAVEN CACHE ====='
+                // This deletes the corrupted metadata folder left behind by the version switch
+                bat 'if exist "C:\\Windows\\system32\\config\\systemprofile\\.m2\\repository\\7603b4c1-08c5-4c45-b0a0-1c3c06cad292\\snowflake-gdrive-common" rmdir /s /q "C:\\Windows\\system32\\config\\systemprofile\\.m2\\repository\\7603b4c1-08c5-4c45-b0a0-1c3c06cad292\\snowflake-gdrive-common"'
+            }
+        }
  
 stage('Build Artifact') {
             steps {
