@@ -94,24 +94,24 @@
 	</build>
 	<repositories>
 		<repository>
-			<id>mulesoft-releases</id>
-			<url>
-	https://repository.mulesoft.org/nexus/repository/releases/
-   </url>
-		</repository>
-		<repository>
 			<id>anypoint-exchange-v3</id>
 			<name>Anypoint Exchange V3</name>
 			<url>https://maven.anypoint.mulesoft.com/api/v3/maven</url>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<id>mulesoft-releases</id>
+			<name>MuleSoft Releases Repository</name>
+			<url>https://repository.mulesoft.org/releases/</url>
 			<layout>default</layout>
 		</repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
 			<id>mulesoft-releases</id>
-			<url>
-	https://repository.mulesoft.org/nexus/repository/releases/
-   </url>
+			<name>MuleSoft Releases Repository</name>
+			<url>https://repository.mulesoft.org/releases/</url>
+			<layout>default</layout>
 		</pluginRepository>
 	</pluginRepositories>
 	<dependencies>
