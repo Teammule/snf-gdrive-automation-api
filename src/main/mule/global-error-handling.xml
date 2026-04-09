@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns="http://www.mulesoft.org/schema/mule/core" 
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+      xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+	<sub-flow name="buildErrorMetaSubFlow" doc:id="12168db4-7aef-4649-aa6e-7a9b645a2f38" >
+		<ee:transform doc:name="Build Error Metadata JSON" doc:id="eef8955c-de06-4285-9ae3-6d7906700edc">
+			<ee:variables >
+				<ee:set-variable variableName="errorMeta" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	correlationId      : correlationId,
+	timestamp          : now() as String {format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"},
+	flowName           : flow.name default "UNKNOWN",
+	fileName           : vars.fileName default "UNKNOWN",
+	mimeType           : vars.mimeType default "UNKNOWN",
+	errorType          : (error.errorType.namespace default "MULE") ++ ":" ++ (error.errorType.identifier default "UNKNOWN"),
+    errorDescription   : error.description default "No description available",
+    detailedDescription: error.detailedDescription default "",
+    failingComponent   : error.failingComponent default "UNKNOWN",
+    cause              : (error.cause.message default null),
+    severity           : vars.errorSeverity default "ERROR",
+    category           : vars.errorCategory default "UNCLASSIFIED",
+    retryable          : vars.retryable default false
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="ERROR" doc:name="Structured Error Log" doc:id="da931a63-261b-445a-ab43-75ec2e08823d" message="#['\n[STRUCTURED-ERROR]\n' ++ write(vars.errorMeta, 'application/json')]" />
+	</sub-flow>
+    
+	<error-handler name="global-error-handler" doc:id="51cfbfb6-ffee-4be5-89b7-69ab16d13f00" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" type="ANY">
+			
+			<ee:transform doc:name="Extract Error Type Variables" doc:id="8acfc8f4-46b6-42fa-94a2-19577b2c13db" >
+				<ee:variables >
+					<ee:set-variable variableName="errId" ><![CDATA[%dw 2.0
+output application/java
+---
+error.errorType.identifier default "UNKNOWN"]]></ee:set-variable>
+					<ee:set-variable variableName="errNamespace" ><![CDATA[%dw 2.0
+output application/java
+---
+error.errorType.namespace default "MULE"]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+
+			<ee:transform doc:name="Classify Error" doc:id="16aa7a0d-3d9a-486d-8148-34bc68566e71" >
+				<ee:variables >
+					<ee:set-variable variableName="errorCategory" ><![CDATA[%dw 2.0
+output application/java
+---
+if (vars.errNamespace == "SNOWFLAKE") "SNOWFLAKE_RETRIEVAL"
+else if (vars.errNamespace == "GOOGLE-DRIVE") "GOOGLE_DRIVE_UPLOAD"
+else if (vars.errNamespace == "OS") "OBJECT_STORE_ERROR"
+else if (vars.errNamespace == "MULE" and (vars.errId == "CLIENT_SECURITY" or vars.errId == "SERVER_SECURITY")) "SECURITY_AUTH_FAILURE"
+else if (vars.errNamespace == "MULE" and (vars.errId == "EXPRESSION" or vars.errId == "TRANSFORMATION")) "DATAWEAVE_TRANSFORMATION"
+else if (vars.errNamespace == "MULE" and (vars.errId == "CONNECTIVITY" or vars.errId == "RETRY_EXHAUSTED")) "CONNECTIVITY"
+else "UNCLASSIFIED"]]></ee:set-variable>
+					
+					<ee:set-variable variableName="errorSeverity" ><![CDATA[%dw 2.0
+output application/java
+---
+if (vars.errNamespace == "SNOWFLAKE" or vars.errNamespace == "GOOGLE-DRIVE") "ERROR"
+else if (vars.errNamespace == "MULE" and (vars.errId == "CONNECTIVITY" or vars.errId == "CLIENT_SECURITY")) "CRITICAL"
+else "ERROR"]]></ee:set-variable>
+					
+					<ee:set-variable variableName="retryable" ><![CDATA[%dw 2.0
+output application/java
+---
+if (vars.errId == "CONNECTIVITY" or vars.errId == "TIMEOUT" or vars.errId == "RETRY_EXHAUSTED") true
+else false]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+            
+            <flow-ref doc:name="Build Meta" doc:id="e6b37a88-5042-44d2-b28f-dac78318d9d2" name="buildErrorMetaSubFlow"/>
+			
+            <ee:transform doc:name="Build Final Payload" doc:id="9eec5ceb-6b10-4ba2-a5aa-723cc27f869b" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var actionMap = {
+    "SNOWFLAKE_RETRIEVAL": { 
+        status: "SNOWFLAKE_FAILURE", 
+        action: if (vars.retryable) "RETRY_ON_NEXT_POLL" else "MANUAL_REVIEW_REQUIRED" 
+    },
+    "GOOGLE_DRIVE_UPLOAD": { 
+        status: "UPLOAD_FAILED", 
+        action: if (vars.retryable) "RETRY_ELIGIBLE" else "MANUAL_INTERVENTION_REQUIRED" 
+    },
+    "OBJECT_STORE_ERROR": { 
+        status: "TRACKING_FAILED", 
+        action: "CHECK_OBJECT_STORE_CONFIG" 
+    },
+    "SECURITY_AUTH_FAILURE": { 
+        status: "AUTH_FAILURE", 
+        action: "MANUAL_INTERVENTION_REQUIRED" 
+    },
+    "DATAWEAVE_TRANSFORMATION": { 
+        status: "TRANSFORMATION_FAILED", 
+        action: "ROW_SKIPPED_DATA_ISSUE" 
+    },
+    "CONNECTIVITY": { 
+        status: "CONNECTIVITY_FAILED", 
+        action: "RETRY_ON_NEXT_POLL" 
+    },
+    "UNCLASSIFIED": { 
+        status: "UNCLASSIFIED_FAILURE", 
+        action: "MANUAL_REVIEW_REQUIRED" 
+    }
+}
+
+var outcome = actionMap[vars.errorCategory] default actionMap."UNCLASSIFIED"
+
+---
+{
+    (vars.errorMeta default {}),
+    (outcome)
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-continue>
+	</error-handler>
+
+</mule>

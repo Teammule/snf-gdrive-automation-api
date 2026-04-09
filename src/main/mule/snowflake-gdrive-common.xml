@@ -104,39 +104,7 @@ output application/json
         <!-- FIX B: fields-content must use output application/java.
              Connector needs a Java Map — not a JSON string.
              FIX C: content uses decoded binary bytes from payload. -->
-		<error-handler>
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c317db8b-5075-4f0f-b4aa-4beb9fce2970" >
-				<ee:transform doc:name="Transform Message" doc:id="7f9053fa-8c64-479d-8a2a-291aa28a7218" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-    errorType: 
-        (error.errorType.namespace as String) 
-        ++ ":" 
-        ++ (error.errorType.identifier as String),
-
-    detailedDescription: 
-        write(error.detailedDescription, "application/json"),
-
-    failingComponent: error.failingComponent,
-
-    timestamp: now()
-}]]></ee:set-payload>
-					</ee:message>
-				</ee:transform>
-				<ee:transform doc:name="Transform Message" doc:id="4519a8f1-faab-4cb6-9850-89df5159d4b1" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-payload]]></ee:set-payload>
-					</ee:message>
-				</ee:transform>
-			</on-error-propagate>
-
-        </error-handler>
+		<error-handler ref="global-error-handler" />
 
     
 </flow>
