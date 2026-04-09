@@ -18,7 +18,7 @@
 		<cloudhub.muleVersion>4.11.0</cloudhub.muleVersion>
 		<cloudhub.replicas>1</cloudhub.replicas>
 		<cloudhub.vCores>0.1</cloudhub.vCores>
-		<munit.version>3.7.0</munit.version>
+		<munit.version>3.1.0</munit.version>
 	</properties>
 	<distributionManagement>
 		<repository>
@@ -61,11 +61,7 @@
 					</cloudhub2Deployment>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.mule.tools.maven</groupId>
-				<artifactId>mule-maven-plugin</artifactId>
-				</plugin>
-
+			
 			<plugin>
 				<groupId>com.mulesoft.munit.tools</groupId>
 				<artifactId>munit-maven-plugin</artifactId>
