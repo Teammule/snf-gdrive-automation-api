@@ -55,18 +55,21 @@ stage('Build Artifact') {
         }
  
 stage('Publish to Exchange') {
-            // ONLY run this stage if the branch is 'master'
             when {
                 expression { env.GIT_BRANCH == 'origin/master' || env.GIT_BRANCH == 'master' }
             }
             steps {
+                echo '===== DOWNGRADING TO MAVEN 3.8.8 FOR MULESOFT COMPATIBILITY ====='
+                // This downloads the compatible Maven Wrapper directly into the Jenkins workspace
+                bat "mvn wrapper:wrapper -Dmaven=3.8.8"
+                
                 echo '===== STAMPING NEW VERSION INTO POM.XML ====='
-                // This physically changes <version>1.0.0</version> to <version>1.0.49</version>
-                bat "mvn versions:set -DnewVersion=1.1.%BUILD_NUMBER% -s %MAVEN_SETTINGS%"
+                // Notice we now use mvnw.cmd instead of mvn!
+                bat "mvnw.cmd versions:set -DnewVersion=1.1.%BUILD_NUMBER% -s %MAVEN_SETTINGS%"
              
                 echo '===== PUBLISHING ARTIFACT TO EXCHANGE ====='
                 bat """
-                mvn clean deploy ^
+                mvnw.cmd clean deploy ^
                 -DskipTests ^
                 -Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
                 -Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
@@ -76,22 +79,18 @@ stage('Publish to Exchange') {
         }
 
         stage('Deploy to CloudHub 2.0') {
-            // ONLY run this stage if the branch is 'master'
             when {
                 expression { env.GIT_BRANCH == 'origin/master' || env.GIT_BRANCH == 'master' }
             }
             steps {
-                echo '===== DEPLOYING TO CLOUDHUB 2.0 (US EAST OHIO) ====='
+                echo '===== DEPLOYING TO CLOUDHUB 2.0 ====='
+                // Using mvnw.cmd here as well to ensure CloudHub deployment succeeds
                 bat """
-                mvn mule:deploy ^
+                mvnw.cmd clean deploy ^
+                -DskipTests ^
+                -DmuleDeploy ^
                 -Danypoint.client.id=%ANYPOINT_CLIENT_ID% ^
                 -Danypoint.client.secret=%ANYPOINT_CLIENT_SECRET% ^
-                -Dcloudhub.application.name=%CLOUDHUB_APP_NAME% ^
-                -Dcloudhub.environment=%CLOUDHUB_ENVIRONMENT% ^
-                -Dcloudhub.businessGroupId=%CLOUDHUB_BG_ID% ^
-                -Dcloudhub.target=%CLOUDHUB_TARGET% ^
-                -Dcloudhub.muleVersion=%MULE_VERSION% ^
-                -DskipTests ^
                 -s %MAVEN_SETTINGS%
                 """
             }
