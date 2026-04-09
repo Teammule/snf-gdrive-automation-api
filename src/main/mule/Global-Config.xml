@@ -22,4 +22,5 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 		<http:listener-connection host="0.0.0.0" port="8081" readTimeout="1000000" />
 	</http:listener-config>
 	<os:object-store name="File_Tracking_Store" doc:name="Object store" doc:id="ada1c915-afb5-4ca5-b00b-e4fe13064f8f" maxEntries="1000" entryTtl="30" entryTtlUnit="DAYS" expirationIntervalUnit="DAYS" />
+	<configuration doc:name="Configuration" doc:id="9190ef2c-4a2a-41e7-872a-57fd891cd06e" defaultErrorHandler-ref="global-error-handler" doc:description="Declaration for global-error-handler"/>
 </mule>

@@ -59,7 +59,6 @@
 					</cloudhub2Deployment>
 				</configuration>
 			</plugin>
-			
 			<plugin>
 				<groupId>com.mulesoft.munit.tools</groupId>
 				<artifactId>munit-maven-plugin</artifactId>
