@@ -49,6 +49,14 @@ mvn clean package ^
 """
 }
 }
+
+stage('MUnit Tests') {
+            steps {
+                echo '===== RUNNING MUNIT TESTS & CHECKING COVERAGE ====='
+                // This triggers the strict rules we just added to the pom.xml
+                bat "mvn clean test -s %MAVEN_SETTINGS%"
+            }
+        }
  
 stage('Publish to Exchange') {
             // ONLY run this stage if the branch is 'master'
